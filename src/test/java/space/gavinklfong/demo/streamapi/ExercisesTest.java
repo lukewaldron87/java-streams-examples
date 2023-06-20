@@ -136,4 +136,27 @@ public class ExercisesTest {
             assertTrue(order.getOrderDate().isBefore(maxDate));
         }
     }
+
+
+    /**
+     * Get the 3 cheapest products of "Books" category
+     */
+    @Test
+    public void exercise5(){
+        String category = "Books";
+        List<Product> result = productRepo.findAll().stream()
+                .filter(product -> product.getCategory().equals(category))
+                .sorted(Comparator.comparing(Product::getPrice))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        result.forEach(product -> System.out.println(product.toString()));
+
+        List<Long> expectedIdsInOrder = Arrays.asList(17L, 16L, 7L);
+
+        assertEquals(expectedIdsInOrder.size(), result.size());
+        for(int i=0; i<expectedIdsInOrder.size(); i++){
+            assertEquals(expectedIdsInOrder.get(i), result.get(i).getId());
+        }
+    }
 }
