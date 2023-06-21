@@ -159,4 +159,21 @@ public class ExercisesTest {
             assertEquals(expectedIdsInOrder.get(i), result.get(i).getId());
         }
     }
+
+    /**
+     * Get the 3 most recent placed order
+     */
+    @Test
+    public void exercise6(){
+        List<Order> orderList = orderRepo.findAll().stream()
+                .sorted(Comparator.comparing(Order::getOrderDate))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        List<Long> expectedOrderIds = Arrays.asList(12L, 41L, 22L);
+        assertEquals(expectedOrderIds.size(), orderList.size());
+        for(int i=0; i<expectedOrderIds.size(); i++){
+            assertEquals(expectedOrderIds.get(i), orderList.get(i).getId());
+        }
+    }
 }
