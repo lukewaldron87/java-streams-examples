@@ -259,10 +259,5 @@ public class ExercisesTest {
                 .getAsDouble();
 
         assertEquals(expectedAveragePrice, averagePrice);
-
-        int[] nums = {9,6,4,2,3,5,7,0,1};
-        List<Integer> numList = Arrays.stream(nums).boxed().sorted().peek(System.out::println).collect(Collectors.toList());
-
-        for
     }
 }
