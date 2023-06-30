@@ -14,6 +14,7 @@ import space.gavinklfong.demo.streamapi.repos.ProductRepo;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -122,7 +123,7 @@ public class ExercisesTest {
         List<Order> orderList = orderRepo.findAll();
 
         List<Order> orders = orderList.stream()
-                .filter(x -> x.getCustomer().getTier() == 2)
+                .filter(order -> order.getCustomer().getTier() == 2)
                 .filter(order -> order.getOrderDate().isAfter(minDate))
                 .filter(order -> order.getOrderDate().isBefore(maxDate))
                 .sorted(Comparator.comparing(order -> order.getCustomer().getName()))
@@ -175,5 +176,93 @@ public class ExercisesTest {
         for(int i=0; i<expectedOrderIds.size(); i++){
             assertEquals(expectedOrderIds.get(i), orderList.get(i).getId());
         }
+    }
+
+    /**
+     * Get a list of products which was ordered on 15-Mar-2021
+     */
+    @Test
+    public void exercise7(){
+
+        LocalDate expectedDate = LocalDate.of(2021, 3, 15);
+
+        List<Product> products = orderRepo.findAll().stream()
+                .filter(order -> order.getOrderDate().equals(expectedDate))
+                .flatMap(order -> order.getProducts().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        for (Product product: products){
+
+            boolean hasCorrectOrderDate = false;
+            for (Order order: product.getOrders()){
+                if(expectedDate.equals(order.getOrderDate())){
+                    hasCorrectOrderDate = true;
+                }
+            }
+            assertTrue(hasCorrectOrderDate);
+        }
+
+    }
+
+    /**
+     * Calculate the total lump sum of all orders placed in Feb 2021
+     */
+    @Test
+    public void exercise8(){
+
+        Double expectedTotalPrice = Double.valueOf("11995.36");
+
+        Double totalPrice = orderRepo.findAll().stream()
+                .filter(order -> order.getOrderDate().isAfter(LocalDate.of(2021, 1, 31)))
+                .filter(order -> order.getOrderDate().isBefore(LocalDate.of(2021, 3, 1)))
+                .flatMap(order -> order.getProducts().stream())
+                //.mapToDouble(order -> order.getPrice())
+                .mapToDouble(Product::getPrice)// method reference improves readability
+                .sum();
+
+        assertEquals(expectedTotalPrice, totalPrice);
+
+    }
+
+    /**
+     * Calculate the total lump of all orders placed in Feb 2021 (using reduce with BiFunction)")
+     */
+    @Test
+    public void exercise8a(){
+
+        Double expectedTotalPrice = Double.valueOf("11995.36");
+
+        Double totalPrice = orderRepo.findAll().stream()
+                .filter(order -> order.getOrderDate().isAfter(LocalDate.of(2021, 1, 31)))
+                .filter(order -> order.getOrderDate().isBefore(LocalDate.of(2021, 3, 1)))
+                .flatMap(order -> order.getProducts().stream())
+                .mapToDouble(Product::getPrice)
+                .reduce(0, (x, y) -> x+y);
+
+        assertEquals(expectedTotalPrice, totalPrice);
+    }
+
+    /**
+     * Calculate the average price of all orders placed on 15-Mar-2021
+     */
+    @Test
+    public void exercise9(){
+
+        Double expectedAveragePrice = Double.valueOf("352.89");
+
+        Double averagePrice = orderRepo.findAll().stream()
+                .filter(order -> order.getOrderDate().equals( LocalDate.of(2021, 3, 15) ) )
+                .flatMap(order -> order.getProducts().stream())
+                .mapToDouble(Product::getPrice)
+                .average()
+                .getAsDouble();
+
+        assertEquals(expectedAveragePrice, averagePrice);
+
+        int[] nums = {9,6,4,2,3,5,7,0,1};
+        List<Integer> numList = Arrays.stream(nums).boxed().sorted().peek(System.out::println).collect(Collectors.toList());
+
+        for
     }
 }
