@@ -260,4 +260,24 @@ public class ExercisesTest {
 
         assertEquals(expectedAveragePrice, averagePrice);
     }
+
+    /**
+     * Obtain statistics summary of all products belong to "Books" category
+     */
+    @Test
+    public void exercise10(){
+
+        DoubleSummaryStatistics booksStatistics = productRepo.findAll().stream()
+                .filter(product -> product.getCategory().equals("Books"))
+                .mapToDouble(Product::getPrice)
+                .peek(System.out::println)
+                .summaryStatistics();
+
+        assertEquals(607.88, booksStatistics.getAverage());
+        assertEquals(5, booksStatistics.getCount());
+        assertEquals(893.44, booksStatistics.getMax());
+        assertEquals(240.58, booksStatistics.getMin());
+        assertEquals(3039.4, booksStatistics.getSum());
+    }
+
 }
