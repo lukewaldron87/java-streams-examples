@@ -280,4 +280,18 @@ public class ExercisesTest {
         assertEquals(3039.4, booksStatistics.getSum());
     }
 
+    /**
+     * Obtain a data map with order id and order’s product count
+     */
+    @Test
+    public void exercise11(){
+
+        Map<Long, Integer> orderIdToProductCountMap = orderRepo.findAll().stream()
+                .collect(Collectors.toMap(Order::getId, order -> order.getProducts().size()));
+
+        for(Order order: orderRepo.findAll()){
+            assertEquals(order.getProducts().size(), orderIdToProductCountMap.get(order.getId()));
+        }
+    }
+
 }
