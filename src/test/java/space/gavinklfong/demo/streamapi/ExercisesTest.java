@@ -294,4 +294,17 @@ public class ExercisesTest {
         }
     }
 
+    /**
+     * Obtain a data map of customer and list of orders
+     * Produce a data map with order records grouped by customer
+     */
+    @Test
+    public void exercise12(){
+
+        Map<Customer, List<Order>> customerToOrderMap = orderRepo.findAll().stream()
+                .collect(Collectors.groupingBy(Order::getCustomer));
+
+        assertEquals(10, customerToOrderMap.size());
+    }
+
 }
