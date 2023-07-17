@@ -12,6 +12,8 @@ import space.gavinklfong.demo.streamapi.repos.CustomerRepo;
 import space.gavinklfong.demo.streamapi.repos.OrderRepo;
 import space.gavinklfong.demo.streamapi.repos.ProductRepo;
 
+import javax.persistence.Entity;
+import javax.persistence.Tuple;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -19,6 +21,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -305,6 +309,38 @@ public class ExercisesTest {
                 .collect(Collectors.groupingBy(Order::getCustomer));
 
         assertEquals(10, customerToOrderMap.size());
+    }
+
+    /**
+     * Obtain a data map of customer_id and list of order_id(s)
+     */
+    @Test
+    public void exercise12a(){
+
+        Map<Long, List<Long>> customersToOrderListMap = orderRepo.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        order -> order.getCustomer().getId(),
+                        mapping(Order::getId, toList())
+                ));
+
+        // create list of orderId to Order to check the results of the other map
+        Map<Long, Order> idToOrderMap = orderRepo.findAll().stream()
+                .collect(Collectors.toMap(Order::getId, Function.identity()));
+
+        // get number of customers to check size of map
+        int numberOfCustomers = customerRepo.findAll().size();
+        assertEquals(numberOfCustomers, customersToOrderListMap.size());
+
+        for(Map.Entry<Long, List<Long>> customerOrders: customersToOrderListMap.entrySet()){
+            System.out.println("Customer: "+customerOrders.getKey());
+            System.out.println("Orders: "+customerOrders.getValue());
+            System.out.println("-------------");
+            for(Long orderId: customerOrders.getValue()){
+                assertEquals(customerOrders.getKey(), idToOrderMap.get(orderId).getCustomer().getId());
+            }
+        }
+
+
     }
 
 }
