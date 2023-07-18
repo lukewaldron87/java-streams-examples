@@ -339,8 +339,33 @@ public class ExercisesTest {
                 assertEquals(customerOrders.getKey(), idToOrderMap.get(orderId).getCustomer().getId());
             }
         }
+    }
+
+    /**
+     * Obtain a data map with order and its total price
+     */
+    @Test
+    public void exercise13(){
 
 
+        Map<Order, Double> orderToPriceMap = orderRepo.findAll().stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        order -> order.getProducts().stream()
+                                .mapToDouble(Product::getPrice).sum())
+                );
+
+
+        // check answer
+        for(Map.Entry<Order, Double> orderEntry: orderToPriceMap.entrySet()){
+            Double orderTotal = getOrderTotal(orderEntry.getKey().getProducts());
+            System.out.println(orderTotal + " : " + orderEntry.getValue());
+            assertEquals(orderTotal, orderEntry.getValue());
+        }
+    }
+
+    private Double getOrderTotal(Set<Product> products) {
+        return products.stream().mapToDouble(Product::getPrice).sum();
     }
 
 }
