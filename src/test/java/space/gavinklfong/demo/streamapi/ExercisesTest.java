@@ -368,4 +368,41 @@ public class ExercisesTest {
         return products.stream().mapToDouble(Product::getPrice).sum();
     }
 
+    /**
+     * Obtain a data map with order and its total price (using reduce)
+     */
+    @Test
+    public void exercise13a(){Map<Order, Double> orderToPriceMap = orderRepo.findAll().stream()
+            .collect(Collectors.toMap(
+                    Function.identity(),
+                    order -> order.getProducts().stream()
+                            .mapToDouble(Product::getPrice)
+                            .reduce(0, (x, y) -> x+y))
+            );
+
+
+        // check answer
+        for(Map.Entry<Order, Double> orderEntry: orderToPriceMap.entrySet()){
+            Double orderTotal = getOrderTotalAdd(orderEntry.getKey().getProducts());
+            System.out.println(orderTotal + " : " + orderEntry.getValue());
+            assertEquals(orderTotal, orderEntry.getValue());
+        }
+    }
+
+    private Double getOrderTotalAdd(Set<Product> products) {
+        Double sum = Double.valueOf(0);
+        for(Product product: products){
+            sum += product.getPrice();
+        }
+        return sum;
+    }
+
+    /**
+     * Obtain a data map of product name by category
+     */
+    @Test
+    public void exercise14(){
+
+    }
+
 }
