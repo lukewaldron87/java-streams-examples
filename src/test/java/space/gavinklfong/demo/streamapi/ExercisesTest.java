@@ -23,8 +23,7 @@ import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @DataJpaTest
@@ -372,7 +371,9 @@ public class ExercisesTest {
      * Obtain a data map with order and its total price (using reduce)
      */
     @Test
-    public void exercise13a(){Map<Order, Double> orderToPriceMap = orderRepo.findAll().stream()
+    public void exercise13a(){
+
+        Map<Order, Double> orderToPriceMap = orderRepo.findAll().stream()
             .collect(Collectors.toMap(
                     Function.identity(),
                     order -> order.getProducts().stream()
@@ -402,6 +403,37 @@ public class ExercisesTest {
      */
     @Test
     public void exercise14(){
+
+        Map<String, List<String>> categoryToProductsMap = productRepo.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        mapping(Product::getName, toList())
+                ));
+
+        for(Map.Entry<String, List<String>> categoryToProducts: categoryToProductsMap.entrySet()){
+
+            System.out.println(categoryToProducts.getKey()+": "+categoryToProducts.getValue().toString());
+
+            for (String productName: categoryToProducts.getValue()){
+                Optional<String> categoryForProductName = getCategoryForProductName(productName);
+                assertTrue(categoryForProductName.isPresent());
+                assertEquals(categoryToProducts.getKey(), categoryForProductName.get());
+            }
+        }
+    }
+
+    private Optional<String> getCategoryForProductName(String productName){
+        return productRepo.findAll().stream()
+                .filter(product -> product.getName().equals(productName))
+                .map(product -> product.getCategory())
+                .collect(Collectors.reducing((a, b) -> null));
+    }
+
+    /**
+     * Get the most expensive product per category
+     */
+    @Test
+    public void exercise15() {
 
     }
 
