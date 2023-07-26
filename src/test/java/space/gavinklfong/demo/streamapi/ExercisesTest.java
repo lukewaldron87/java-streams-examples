@@ -21,8 +21,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
+import static java.util.Comparator.comparingDouble;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -435,6 +436,52 @@ public class ExercisesTest {
     @Test
     public void exercise15() {
 
+        Map<String, Optional<Product>> categoryToMostExpensiveProduct = productRepo.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        maxBy(comparingDouble(Product::getPrice))
+                ));
+
+        for(Map.Entry<String, Optional<Product>> entries: categoryToMostExpensiveProduct.entrySet()){
+            System.out.println(entries.getKey() + " : " + entries.getValue().get());
+            assertEquals(getHighestPriceForCategory(entries.getKey()), entries.getValue().get().getPrice());
+        }
+
+    }
+
+    private Double getHighestPriceForCategory(String category) {
+        OptionalDouble maxPrice = productRepo.findAll().stream()
+                .filter(product -> product.getCategory().equals(category))
+                .mapToDouble(Product::getPrice)
+                .max();
+        return maxPrice.getAsDouble();
+    }
+
+    /**
+     * Get the most expensive product (by name) per category
+     */
+    @Test
+    public void exercise15a(){
+        Map<String, String> categoryToMostExpensiveProductName = productRepo.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        Product::getCategory,
+                        collectingAndThen(
+                                maxBy(comparingDouble(Product::getPrice)),
+                                productOptional -> productOptional.map(Product::getName).orElse(null)
+                        )
+                ));
+
+        for(Map.Entry<String, String> entries: categoryToMostExpensiveProductName.entrySet()){
+            System.out.println(entries.getKey() + " : " + entries.getValue());
+            assertEquals(getNameOfHighestPricedProductForCategory(entries.getKey()), entries.getValue());
+        }
+    }
+
+    private String getNameOfHighestPricedProductForCategory(String category) {
+        return productRepo.findAll().stream()
+                .filter(product -> product.getCategory().equals(category))
+                .max(Comparator.comparing(Product::getPrice))
+                .get().getName();
     }
 
 }
